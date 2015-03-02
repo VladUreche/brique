@@ -32,8 +32,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     while(true){
       acc match {
         case CNil() => return acc
-        case Cons(h, t) =>
-          if(m > 0) { acc = t; m = m - 1 }
+        case cons: Cons[A] =>
+          if(m > 0) { acc = cons.tail; m = m - 1 }
           else return acc
       }
     }
@@ -46,8 +46,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     while(true){
       acc match {
         case CNil() => return acc
-        case Cons(h, t) =>
-          if(p(h)) acc = t
+        case cons: Cons[A] =>
+          if(p(cons.head)) acc = cons.tail
           else return acc
       }
     }
@@ -60,9 +60,9 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(h, t) =>
-          if(p(h)) acc = Cons(h, acc)
-          l = t
+        case cons: Cons[A] =>
+          if(p(cons.head)) acc = Cons(cons.head, acc)
+          l = cons.tail
         case CNil() => return acc.reverse
       }
     }
@@ -77,9 +77,9 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(h, t) =>
-          acc = f(acc, h)
-          l = t
+        case cons: Cons[A] =>
+          acc = f(acc, cons.head)
+          l = cons.tail
         case CNil() => return acc
       }
     }
@@ -94,28 +94,28 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
 
   /** get the head if the [[ConsList]] is not empty */
   final def headOption: Option[A] = this match {
-    case CNil()     => Option.empty
-    case Cons(h, _) => Some(h)
+    case CNil()        => Option.empty
+    case cons: Cons[A] => Some(cons.head)
   }
 
   /** check if a [[ConsList]] is empty */
   final def isEmpty: Boolean = this match {
-    case CNil()     => true
-    case Cons(_, _) => false
+    case CNil()        => true
+    case cons: Cons[_] => false
   }
 
   /** get the last element if the [[ConsList]] is not empty */
   final def lastOption: Option[A] = {
     this match {
       case CNil() => None
-      case Cons(head, tail) =>
-        var last = head
-        var l = tail
+      case cons: Cons[A] =>
+        var last = cons.head
+        var l = cons.tail
         while(true){
           l match {
-            case Cons(h, t) =>
-              last = h
-              l = t
+            case cons2: Cons[A] =>
+              last = cons2.head
+              l = cons2.tail
             case CNil() => return Some(last)
           }
         }
@@ -129,9 +129,9 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var i = index
     while(true){
       l match {
-        case Cons(h, t) =>
-          if(i > 0){ i = i - 1; l = t }
-          else if(i == 0) return Some(h)
+        case cons: Cons[A] =>
+          if(i > 0){ i = i - 1; l = cons.tail }
+          else if(i == 0) return Some(cons.head)
           else return None
         case CNil() => return None
       }
@@ -144,16 +144,16 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(h, t) =>
-          acc = Cons(f(h), acc)
-          l = t
+        case cons: Cons[A] =>
+          acc = Cons(f(cons.head), acc)
+          l = cons.tail
         case CNil() =>
           var acc2 = empty[B]
           while(true){
           acc match {
-            case Cons(h, t) =>
-              acc2 = Cons(h, acc2)
-              acc = t
+            case cons: Cons[A] =>
+              acc2 = Cons(cons.head, acc2)
+              acc = cons.tail
             case CNil() => return acc2
           }
         }
@@ -176,7 +176,7 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(h, t) => acc = Cons(h , acc); l = t
+        case cons: Cons[A] => acc = Cons(cons.head , acc); l = cons.tail
         case CNil() => return acc
       }
     }
@@ -189,9 +189,9 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(_, t) =>
+        case cons: Cons[A] =>
           acc = acc + 1
-          l = t
+          l = cons.tail
         case CNil() => return acc
       }
     }
@@ -200,8 +200,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
 
   /** get the tail if the [[ConsList]] is not empty */
   final def tailOption: Option[ConsList[A]] = this match {
-    case CNil()     => Option.empty
-    case Cons(_, t) => Some(t)
+    case CNil()        => Option.empty
+    case cons: Cons[A] => Some(cons.tail)
   }
 
   /** take the `n` first elements */
@@ -211,8 +211,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var m = n
     while(true){
       l match {
-        case Cons(h, t) =>
-          if(m > 0){ m = m - 1; l = t; acc = Cons(h, acc) }
+        case cons: Cons[A] =>
+          if(m > 0){ m = m - 1; l = cons.tail; acc = Cons(cons.head, acc) }
           else return acc.reverse
         case CNil() => return acc.reverse
       }
@@ -226,8 +226,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     var l = this
     while(true){
       l match {
-        case Cons(h, t) =>
-          if(p(h)){ l = t; acc = Cons(h, acc) }
+        case cons: Cons[A] =>
+          if(p(cons.head)){ l = cons.tail; acc = Cons(cons.head, acc) }
           else return acc.reverse
         case CNil() => return acc.reverse
       }
@@ -241,8 +241,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
 
   /** attempt to get head and tail of a [[ConsList]] */
   final def uncons: Option[(A, ConsList[A])] = this match {
-    case CNil()     => Option.empty
-    case Cons(h, t) => Some((h,t))
+    case CNil()        => Option.empty
+    case cons: Cons[A] => Some((cons.head,cons.tail))
   }
 
   /** widen the type of a [[ConsList]] */
@@ -256,8 +256,8 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
     while(true){
       (as, bs) match {
         case (CNil(), CNil()) => return true
-        case (Cons(x, xs), Cons(y, ys)) =>
-          if(A.eqv(x,y)){ as = xs; bs = ys }
+        case (cons1: Cons[A], cons2: Cons[A]) =>
+          if(A.eqv(cons1.head,cons2.head)){ as = cons1.tail; bs = cons2.tail }
           else return false
         case _ => return false
       }

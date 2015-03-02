@@ -21,7 +21,7 @@ lazy val commonSettings = Seq(
     "-language:implicitConversions",
     "-language:experimental.macros",
     "-unchecked",
-    "-Xfatal-warnings",
+//    "-Xfatal-warnings",
     "-Xlint",
     "-Yno-adapted-args",
     "-Yno-predef",
@@ -50,7 +50,9 @@ lazy val briqueSettings = buildSettings ++ commonSettings ++ publishSettings ++ 
 
 lazy val miniBoxingSettings = Seq(
   libraryDependencies += "org.scala-miniboxing.plugins" %% "miniboxing-runtime" % "0.4-SNAPSHOT",
-  addCompilerPlugin(     "org.scala-miniboxing.plugins" %% "miniboxing-plugin"  % "0.4-SNAPSHOT")
+  addCompilerPlugin(     "org.scala-miniboxing.plugins" %% "miniboxing-plugin"  % "0.4-SNAPSHOT"),
+//  scalacOptions += "-P:minibox:off",
+  scalacOptions += "-P:minibox:warn-all"
 )
 
 lazy val aggregate = project.in(file("."))
@@ -60,10 +62,12 @@ lazy val aggregate = project.in(file("."))
   .dependsOn(core, tests, bench)
 
 lazy val core = project
+  .settings(name := "brique-core")
   .settings(moduleName := "brique-core")
   .settings(briqueSettings: _*)
 
 lazy val tests = project.dependsOn(core)
+  .settings(name := "brique-tests")
   .settings(moduleName := "brique-tests")
   .settings(briqueSettings: _*)
   .settings(noPublishSettings: _*)
@@ -76,6 +80,7 @@ lazy val tests = project.dependsOn(core)
   )
 
 lazy val bench = project.dependsOn(core)
+  .settings(name := "brique-bench")
   .settings(moduleName := "brique-bench")
   .settings(briqueSettings: _*)
   .settings(noPublishSettings: _*)
