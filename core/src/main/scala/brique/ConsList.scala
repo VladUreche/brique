@@ -151,7 +151,7 @@ sealed abstract class ConsList[@miniboxed A] extends scala.Product with scala.Se
           var acc2 = empty[B]
           while(true){
           acc match {
-            case cons: Cons[A] =>
+            case cons: Cons[B] =>
               acc2 = Cons(cons.head, acc2)
               acc = cons.tail
             case CNil() => return acc2
